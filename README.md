@@ -34,12 +34,27 @@ Hungarian algorithm + Kalman filter multitarget tracker implementation.
 9. SSD detector from OpenCV and models from chuanqi305/MobileNet-SSD
 10. YOLO and Tiny YOLO detectors from https://pjreddie.com/darknet/yolo/
 
+### Prerequisites
+
+1. Install OpenCV by following the steps [here](https://github.com/abdullahsumbal/Installtion/blob/master/OpenCV_installation_steps.md).
+
+2. Linking libraries. Please add your <username> if you are copy pasting
+``` 
+export  LD_LIBRARY_PATH=/home/<username>/anaconda3/lib:$LD_LIBRARY_PATH
+```
 #### Build
-1. Download project sources
-2. Install CMake
-3. Install OpenCV (https://github.com/opencv/opencv) and OpenCV contrib (https://github.com/opencv/opencv_contrib) repositories
-4. Configure project CmakeLists.txt, set OpenCV_DIR. If opencv_contrib don't installed then set disable options USE_OCV_BGFG, USE_OCV_KCF and USE_OCV_UKF
-5. Go to the build directory and run make
+1. Configure project CmakeLists.txt, set OpenCV_DIR. If opencv_contrib don't installed then set disable options USE_OCV_BGFG, USE_OCV_KCF and USE_OCV_UKF
+2. Create a build directory and go in to the build directory
+```
+mkdir build 
+cd build
+```
+3. Compile and run project.
+``` 
+cmake ..
+make all
+```
+
 
 **Usage:**
 
@@ -66,6 +81,7 @@ Hungarian algorithm + Kalman filter multitarget tracker implementation.
               -sl=1 or --show_logs=0
            8. [Optional] Use built-in OpenCL
               -g=1 or --gpu=0
+
 
 #### Thirdparty libraries
 * OpenCV (and contrib): https://github.com/opencv/opencv and https://github.com/opencv/opencv_contrib
