@@ -53,6 +53,7 @@ struct TrajectoryPoint
     bool m_hasRaw;
     Point_t m_prediction;
     Point_t m_raw;
+
 };
 
 // --------------------------------------------------------------------------
@@ -157,6 +158,8 @@ public:
 
     bool m_passLeft = false;
     bool m_passRight = false;
+    TrajectoryPoint m_entryPoint ;
+
 private:
     std::deque<TrajectoryPoint> m_trace;
 };

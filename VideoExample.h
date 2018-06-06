@@ -415,29 +415,82 @@
                     /// \param frame
                     /// \param track
                     ///
-                    void DrawCounter(cv::Mat frame,
+                    void ObjectCounterSimple(cv::Mat frame,
                                      CTrack& track, int direction=0
                     )
                     {
-                        for (size_t j = 0; j < track.m_trace.size() - 1 && track.m_trace.size() >= 4; ++j)
+
+                        if(track.m_trace.size() >= min_path)
                         {
-                            const TrajectoryPoint &pt1 = track.m_trace.at(j);
-                            const TrajectoryPoint &pt2 = track.m_trace.at(j + 1);
+                            const TrajectoryPoint &pt1 = track.m_trace.at(track.m_trace.size() - 2);
+                            const TrajectoryPoint &pt2 = track.m_trace.at(track.m_trace.size() - 1);
                             std::vector<cv::Point> v(m_pollyPoints, m_pollyPoints + sizeof m_pollyPoints / sizeof m_pollyPoints[0]);
-                            if (cv::pointPolygonTest( v, pt2.m_prediction, false ) >  0)
+                            if (cv::pointPolygonTest( v, pt2.m_prediction, false ) >=  0 && cv::pointPolygonTest( v, pt1.m_prediction, false ) ==  -1)
                             {
-                                // Point inside the mask
-                                std::cout << "Inside" << track.m_trace.m_passLeft << std::endl;
-                                if (direction == 0 && track.m_trace.m_passLeft == false)
+                                track.m_trace.m_passLeft = true;
+                                objectCounter ++;
+                            }
+                        }
+                    }
+
+                    void ObjectCounterInOut(cv::Mat frame,
+                                             CTrack& track, int direction=0
+                    )
+                    {
+                        const TrajectoryPoint &pt1 = track.m_trace.at(track.m_trace.size() - 2);
+                        const TrajectoryPoint &pt2 = track.m_trace.at(track.m_trace.size() - 1);
+                        std::vector<cv::Point> v(m_pollyPoints, m_pollyPoints + sizeof m_pollyPoints / sizeof m_pollyPoints[0]);
+                        if(track.m_trace.size() >= min_path)
+                        {
+
+                            if (cv::pointPolygonTest( v, pt2.m_prediction, false ) >=  0 && cv::pointPolygonTest( v, pt1.m_prediction, false ) ==  -1)
+                            {
+                                track.m_trace.m_passLeft = true;
+                            }
+                            if (cv::pointPolygonTest( v, pt1.m_prediction, false ) >=  0 && cv::pointPolygonTest( v, pt2.m_prediction, false ) ==  -1)
+                            {
+                                if(track.m_trace.m_passLeft == true && track.m_trace.m_passRight == false)
                                 {
-                                    // Count object in mask.
-                                    track.m_trace.m_passLeft = true;
                                     objectCounter ++;
+                                    track.m_trace.m_passRight = true;
                                 }
                             }
                         }
                     }
 
+                    void ObjectCounterInOutMinDist(cv::Mat frame,
+                                            CTrack& track, int direction=0
+                    )
+                    {
+                        const TrajectoryPoint &pt1 = track.m_trace.at(track.m_trace.size() - 2);
+                        const TrajectoryPoint &pt2 = track.m_trace.at(track.m_trace.size() - 1);
+                        std::vector<cv::Point> v(m_pollyPoints, m_pollyPoints + sizeof m_pollyPoints / sizeof m_pollyPoints[0]);
+                        if(track.m_trace.size() >= min_path)
+                        {
+
+                            if (cv::pointPolygonTest( v, pt2.m_prediction, false ) >=  0 && cv::pointPolygonTest( v, pt1.m_prediction, false ) ==  -1)
+                            {
+                                track.m_trace.m_passLeft = true;
+                                track.m_trace.m_entryPoint = pt2.m_raw;
+                                std::cout << track.m_trace.m_entryPoint.m_prediction << std::endl;
+                            }
+
+                            if (cv::pointPolygonTest( v, pt1.m_prediction, false ) >=  0 && cv::pointPolygonTest( v, pt2.m_prediction, false ) ==  -1)
+                            {
+                                if(track.m_trace.m_passLeft == true && track.m_trace.m_passRight == false && euclideanDist(pt2.m_prediction, track.m_trace.m_entryPoint.m_prediction) > 10)
+                                {
+                                    objectCounter ++;
+                                    track.m_trace.m_passRight = true;
+                                }
+                            }
+                        }
+                    }
+
+
+                    float euclideanDist(const Point_t&  p, const Point_t&  q) {
+                        const Point_t&  diff = p - q;
+                        return cv::sqrt(diff.x*diff.x + diff.y*diff.y);
+                    }
 
                     ///
                     /// \brief DrawMask
@@ -461,7 +514,7 @@
                         //cv::rectangle(frame, cv::Point(0,0), cv::Point(countBoxWidth, countBoxHeight), cv::Scalar(0, 255, 0), 1, CV_AA);
                         std::string counterLabel = "Count : " + std::to_string(objectCounter);
                         drawtorect(frame,
-                                   cv::Rect(0, 200, countBoxWidth, countBoxHeight),
+                                   cv::Rect(0, 200, int(countBoxWidth), int(countBoxHeight)),
                                    cv::FONT_HERSHEY_PLAIN,
                                    1,
                                    cv::Scalar(255,255,255),counterLabel);
@@ -798,7 +851,10 @@
                                     )
                             {
                                 DrawTrack(frame, 1, *track);
-                                DrawCounter(frame, *track);
+                                // Counter
+                                //ObjectCounterSimple(frame, *track);
+                                //ObjectCounterInOut(frame, *track);
+                                ObjectCounterInOutMinDist(frame, *track);
                                 std::string label = "";
                                 if (showID)
                                     label += "Track ID : " + std::to_string(track->m_trackID);
