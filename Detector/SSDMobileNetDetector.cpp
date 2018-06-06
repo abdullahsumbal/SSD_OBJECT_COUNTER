@@ -181,14 +181,17 @@ void SSDMobileNetDetector::DetectInCrop(cv::Mat colorFrame, const cv::Rect& crop
         {
             size_t objectClass = (size_t)(detectionMat.at<float>(i, 1));
 
-            int xLeftBottom = cvRound(detectionMat.at<float>(i, 3) * crop.width) + crop.x;
-            int yLeftBottom = cvRound(detectionMat.at<float>(i, 4) * crop.height) + crop.y;
-            int xRightTop = cvRound(detectionMat.at<float>(i, 5) * crop.width) + crop.x;
-            int yRightTop = cvRound(detectionMat.at<float>(i, 6) * crop.height) + crop.y;
+            // Only detect person
+            if (m_classNames[objectClass] == "person")
+            {
+                int xLeftBottom = cvRound(detectionMat.at<float>(i, 3) * crop.width) + crop.x;
+                int yLeftBottom = cvRound(detectionMat.at<float>(i, 4) * crop.height) + crop.y;
+                int xRightTop = cvRound(detectionMat.at<float>(i, 5) * crop.width) + crop.x;
+                int yRightTop = cvRound(detectionMat.at<float>(i, 6) * crop.height) + crop.y;
 
-            cv::Rect object(xLeftBottom, yLeftBottom, xRightTop - xLeftBottom, yRightTop - yLeftBottom);
-
-            tmpRegions.push_back(CRegion(object, m_classNames[objectClass], confidence));
+                cv::Rect object(xLeftBottom, yLeftBottom, xRightTop - xLeftBottom, yRightTop - yLeftBottom);
+                tmpRegions.push_back(CRegion(object, m_classNames[objectClass], confidence));
+            }
 
             //cv::rectangle(frame, object, Scalar(0, 255, 0));
             //std::string label = classNames[objectClass] + ": " + std::to_string(confidence);

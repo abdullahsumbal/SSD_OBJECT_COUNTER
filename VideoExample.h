@@ -38,6 +38,7 @@ public:
         m_startFrame = parser.get<int>("start_frame");
         m_endFrame = parser.get<int>("end_frame");
         m_finishDelay = parser.get<int>("end_delay");
+        m_detectClass = parser.get<std::string>("class");
 
         m_colors.push_back(cv::Scalar(255, 0, 0));
         m_colors.push_back(cv::Scalar(0, 255, 0));
@@ -183,7 +184,7 @@ public:
         }
 
         std::cout << "work time = " << (allTime / freq) << std::endl;
-        cv::waitKey(m_finishDelay);
+        //cv::waitKey(m_finishDelay);
     }
 
 protected:
@@ -405,6 +406,7 @@ private:
     int m_endFrame;
     int m_finishDelay;
     std::vector<cv::Scalar> m_colors;
+    std::string m_detectClass;
 
     struct FrameInfo
     {
@@ -688,7 +690,7 @@ protected:
                                                tracking::MatchHungrian,
                                                0.3f,                     // Delta time for Kalman filter
                                                0.1f,                     // Accel noise magnitude for Kalman filter
-                                               frame.rows / 10,          // Distance threshold between region and object on two frames
+                                               frame.rows / 5,          // Distance threshold between region and object on two frames
                                                2 * m_fps,                // Maximum allowed skipped frames
                                                5 * m_fps                 // Maximum trace length
                                                );
@@ -725,7 +727,8 @@ protected:
             }
         }
 
-        m_detector->CalcMotionMap(frame);
+        // Uncommented to enable motion detection
+        //m_detector->CalcMotionMap(frame);
     }
 
     ///

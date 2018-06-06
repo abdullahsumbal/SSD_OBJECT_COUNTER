@@ -20,13 +20,14 @@ static void Help()
 const char* keys =
 {
     "{ @1             |../data/atrium.avi  | movie file | }"
-    "{ e  example     |1                   | number of example 0 - MouseTracking, 1 - MotionDetector, 2 - FaceDetector, 3 - PedestrianDetector, 4 - MobileNet SSD detector, 5 - Yolo detector | }"
+    "{ e  example     |4                   | number of example 0 - MouseTracking, 1 - MotionDetector, 2 - FaceDetector, 3 - PedestrianDetector, 4 - MobileNet SSD detector, 5 - Yolo detector | }"
     "{ sf start_frame |0                   | Start a video from this position | }"
     "{ ef end_frame   |0                   | Play a video to this position (if 0 then played to the end of file) | }"
     "{ ed end_delay   |0                   | Delay in milliseconds after video ending | }"
-    "{ o  out         |                    | Name of result video file | }"
+    "{ o  out         |../data/out.avi     | Name of result video file | }"
     "{ sl show_logs   |1                   | Show Trackers logs | }"
-    "{ g gpu          |0                   | Use OpenCL acceleration | }"
+    "{ g gpu          |1                   | Use OpenCL acceleration | }"
+    "{ cl class       |human               | Detect only the given object | }"
 };
 
 // ----------------------------------------------------------------------

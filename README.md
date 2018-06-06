@@ -42,6 +42,12 @@ Hungarian algorithm + Kalman filter multitarget tracker implementation.
 ``` 
 export  LD_LIBRARY_PATH=/home/<username>/anaconda3/lib:$LD_LIBRARY_PATH
 ```
+
+3. Other Important tools.
+``` 
+sudo apt install ffmpeg
+sudo apt install vlc
+```
 #### Build
 1. Configure project CmakeLists.txt, set OpenCV_DIR. If opencv_contrib don't installed then set disable options USE_OCV_BGFG, USE_OCV_KCF and USE_OCV_UKF
 2. Create a build directory and go in to the build directory
