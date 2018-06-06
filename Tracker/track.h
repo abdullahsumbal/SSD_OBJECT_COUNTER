@@ -155,6 +155,8 @@ public:
         return res;
     }
 
+    bool m_passLeft = false;
+    bool m_passRight = false;
 private:
     std::deque<TrajectoryPoint> m_trace;
 };
