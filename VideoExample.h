@@ -49,6 +49,12 @@ public:
         m_colors.push_back(cv::Scalar(255, 127, 255));
         m_colors.push_back(cv::Scalar(127, 0, 255));
         m_colors.push_back(cv::Scalar(127, 0, 127));
+
+
+        m_pollyPoints[0] = (cv::Point(200, 500));
+        m_pollyPoints[1] = (cv::Point(300, 500));
+        m_pollyPoints[2] = (cv::Point(300, 0));
+        m_pollyPoints[3] = (cv::Point(200, 0));
     }
     virtual ~VideoExample()
     {
@@ -194,7 +200,8 @@ protected:
     bool m_showLogs;
     float m_fps;
     bool m_useLocalTracking;
-
+    // Create a sequence of points to make a contour:
+    cv::Point m_pollyPoints[4];
 
     ///
     /// \brief CaptureAndDetect
@@ -398,6 +405,43 @@ protected:
         }
     }
 
+    ///
+    /// \brief DrawCounter
+    /// \param frame
+    /// \param track
+    ///
+    void DrawCounter(cv::Mat frame,
+                   const CTrack& track
+    )
+    {
+        for (size_t j = 0; j < track.m_trace.size() - 1; ++j)
+        {
+            const TrajectoryPoint &pt1 = track.m_trace.at(j);
+            const TrajectoryPoint &pt2 = track.m_trace.at(j + 1);
+            std::vector<cv::Point> v(m_pollyPoints, m_pollyPoints + sizeof m_pollyPoints / sizeof m_pollyPoints[0]);
+            if (cv::pointPolygonTest( v, pt1.m_prediction, false ) >  0)
+            {
+                // Point inside the mask
+                std::cout << "Inside" << std::endl;
+            }
+        }
+    }
+
+
+    ///
+    /// \brief DrawMask
+    /// \param frame
+    ///
+    void DrawMask(cv::Mat frame)
+    {
+        cv::Mat overlay;
+        frame.copyTo(overlay);
+        double alpha = 0.5;
+        const cv::Point* ppt[1] = { m_pollyPoints };
+        int npt[] = { 4 };
+        cv::fillPoly( overlay, ppt, npt, 1,cv::Scalar(0, 125, 125));
+        cv::addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame);
+    }
 private:
     bool m_isTrackerInitialized;
     std::string m_inFile;
@@ -708,7 +752,7 @@ protected:
         {
             std::cout << "Frame " << framesCounter << ": tracks = " << m_tracker->tracks.size() << ", time = " << currTime << std::endl;
         }
-
+        DrawMask(frame);
         for (const auto& track : m_tracker->tracks)
         {
             if (track->IsRobust(5,                           // Minimal trajectory size
@@ -717,7 +761,7 @@ protected:
                     )
             {
                 DrawTrack(frame, 1, *track);
-
+                DrawCounter(frame, *track);
                 std::string label = track->m_lastRegion.m_type + ": " + std::to_string(track->m_lastRegion.m_confidence);
                 int baseLine = 0;
                 cv::Size labelSize = cv::getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
